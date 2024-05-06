@@ -17,6 +17,9 @@
 #define CodDA D12
 #define CodGB D10
 #define CodGA D9
+
+#define jack_pin D0
+#define strat_pin D2
 /******************/
 
 /******ECHANTILLONAGE********/
@@ -66,7 +69,10 @@ extern float angle_final;
 extern float distance_final;
 /*********************/
 
+extern HardwareTimer *MyTim;
 extern unsigned long timeSetup;
+
+extern int interval_sensor;
 /*************************/
 
 #endif

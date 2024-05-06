@@ -10,3 +10,4 @@ void Update_IT_callback(void);
 void handleEncoderDroit();
 void handleEncoderGauche();
 void Update_callback();
+void Stop_match_callback();

@@ -23,8 +23,8 @@ float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, 
 float cmd_vitesse_G = 0;        // commande vitesse moteur gauche en mm/ms
 float cmd_vitesse_D = 0;
 
-float Kp_G = 0.51, Ki_G = 0.5, Kd_G = 0; // coefficients PID vitesse moteur gauche
-float Kp_D = 0.51, Ki_D = 0.5, Kd_D = 0; // coefficients PID vitesse moteur droit
+float Kp_G = 0.7, Ki_G = 0, Kd_G = 0; // coefficients PID vitesse moteur gauche
+float Kp_D = 0.9, Ki_D = 0, Kd_D = 0; // coefficients PID vitesse moteur droit
 
 int interval_sensor = 0; // Interval de mesure de la distance (100 ms)
 bool strat;
@@ -86,7 +86,7 @@ void setup()
   Serial.println(strat);
   delay(100);
   Serial.println("fin des 9 secondes");
-  //TIM_Stop->resume();
+  // TIM_Stop->resume();
   Serial.println("demarage timer temps");
 
   cmd_vitesse_G = 500;

@@ -13,10 +13,10 @@
 #define DIR_G_1 D5
 #define DIR_G_2 D4
 
-#define CodDB D11
-#define CodDA D12
-#define CodGB D10
-#define CodGA D9
+#define CodGB D11
+#define CodGA D12
+#define CodDB D10
+#define CodDA D9
 
 #define jack_pin D0
 #define strat_pin D2
@@ -30,6 +30,8 @@ extern volatile bool Update_IT;
 /******CONSIGNES PID**********/
 extern float cmd_vitesse_G; // commande vitesse moteur gauche en mm/ms
 extern float cmd_vitesse_D; // commande vitesse moteur droite en mm/ms
+extern float cmd_distance;
+extern float cmd_angle;
 /*****************************/
 
 /********Coef Vitesse ******/
@@ -72,6 +74,7 @@ extern float distance_final;
 extern HardwareTimer *MyTim;
 extern unsigned long timeSetup;
 
+extern bool strat;
 extern int interval_sensor;
 /*************************/
 

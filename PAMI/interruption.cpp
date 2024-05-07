@@ -11,22 +11,23 @@ float delta_recalage = 10;
 float vitesse_D = 0;
 float vitesse_G = 0;
 
+bool angle_ok = false;
+bool distance_ok = false;
+
 long last_tick_gauche = 0;
 long last_tick_droit = 0;
 
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
-void Update_IT_callback(void)
-{
+void Update_IT_callback(void) {
   Update_IT = true;
 }
 /*************************************/
 /*************************************/
 /*************************************/
 
-void Update_callback()
-{
+void Update_callback() {
 
   /****Calcul des vitesses des moteurs*******/
   long tick_now_droit = tick_droit;
@@ -35,16 +36,29 @@ void Update_callback()
   vitesse_D = (float)(tick_now_droit - last_tick_droit) * coefVitesseD;
   vitesse_G = (float)(tick_now_gauche - last_tick_gauche) * coefVitesseG;
   /******************************************/
-  angle += (vitesse_D - vitesse_G) / 98;
-  distance += (vitesse_D + vitesse_G) / 2 * dt;
+  angle += (vitesse_D - vitesse_G) / 2000;  // /98
+  distance += (vitesse_D + vitesse_G) / 2 * dt * 0.6;
 
-  // if (distance >= cmd_distance && cmd_distance > 0) {
-  //   moteur_gauche_freeWheel(true);
-  //   moteur_droit_freeWheel(true);
-  // } else if (angle >= cmd_angle && cmd_angle > 0) {
-  //   moteur_gauche_freeWheel(true);
-  //   moteur_droit_freeWheel(true);
-  // }
+  if (abs(distance) >= abs(cmd_distance) && !distance_ok) {
+    cmd_vitesse_G = 0;
+    cmd_vitesse_D = 0;
+    delay(100);
+    cmd_vitesse_G = -1000;
+    cmd_vitesse_D = 1000;
+    distance_ok = true;
+  } else if (abs(angle) >= abs(cmd_angle) && !angle_ok && distance_ok) {
+    cmd_vitesse_G = 0;
+    cmd_vitesse_D = 0;
+    delay(100);
+    distance = 0;
+    cmd_distance = 500;
+    cmd_vitesse_G = 1000;
+    cmd_vitesse_D = 1000;
+    angle_ok = true;
+  } else if (abs(distance) >= abs(cmd_distance) && angle_ok && distance_ok) {
+    cmd_vitesse_G = 0;
+    cmd_vitesse_D = 0;
+  }
 
   /****Calcul des PID Vitesse*******/
   PID_vitesse_G.Compute();
@@ -74,34 +88,25 @@ void Update_callback()
   Update_IT = false;
 }
 
-void Stop_match_callback()
-{
+void Stop_match_callback() {
   MyTim->detachInterrupt();
   Output_PID_vitesse_D = 0;
   Output_PID_vitesse_G = 0;
   Serial.println("Stop du temps");
 }
 
-void handleEncoderDroit()
-{
-  if (digitalRead(CodDB) == digitalRead(CodDA))
-  {
+void handleEncoderDroit() {
+  if (digitalRead(CodDB) == digitalRead(CodDA)) {
     tick_droit++;
-  }
-  else
-  {
+  } else {
     tick_droit--;
   }
 }
 
-void handleEncoderGauche()
-{
-  if (digitalRead(CodGB) == digitalRead(CodGA))
-  {
+void handleEncoderGauche() {
+  if (digitalRead(CodGB) == digitalRead(CodGA)) {
     tick_gauche++;
-  }
-  else
-  {
+  } else {
     tick_gauche--;
   }
 }

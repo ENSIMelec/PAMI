@@ -16,42 +16,47 @@ bool distance_ok = false;
 
 long last_tick_gauche = 0;
 long last_tick_droit = 0;
-
+short count = 0;
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
 void Update_IT_callback(void) {
-  Update_IT = true;
-}
-/*************************************/
-/*************************************/
-/*************************************/
-
-void Update_callback() {
-
   /****Calcul des vitesses des moteurs*******/
   long tick_now_droit = tick_droit;
   long tick_now_gauche = tick_gauche;
 
-  vitesse_D = (float)(tick_now_droit - last_tick_droit) * coefVitesseD;
+  vitesse_D = (float)(tick_now_droit - last_tick_droit) * coefVitesseD*1.05;
   vitesse_G = (float)(tick_now_gauche - last_tick_gauche) * coefVitesseG;
   /******************************************/
-  angle += (vitesse_D - vitesse_G) / 2000;  // /98
-  distance += (vitesse_D + vitesse_G) / 2 * dt * 0.6;
+  angle += (vitesse_D - vitesse_G) / 100;
+  distance += (vitesse_D + vitesse_G) / 2 * dt;
+
+  if (abs(distance) >= abs(cmd_distance) && angle != 0 && (!distance_ok || distance_ok && angle_ok)) {
+    if (angle > 0) {
+      cmd_vitesse_D -= 100;
+      cmd_vitesse_G += 100;
+    } else {
+      cmd_vitesse_D -= 100;
+      cmd_vitesse_G += 100;
+    }
+  }
 
   if (abs(distance) >= abs(cmd_distance) && !distance_ok) {
-    cmd_vitesse_G = 0;
-    cmd_vitesse_D = 0;
-    delay(100);
-    cmd_vitesse_G = -1000;
-    cmd_vitesse_D = 1000;
+    if (cmd_angle > 0) {
+      cmd_vitesse_G = -400;
+      cmd_vitesse_D = 400;
+    } else {
+      cmd_vitesse_G = 400;
+      cmd_vitesse_D = -400;
+    }
+    angle = 0;
     distance_ok = true;
+
   } else if (abs(angle) >= abs(cmd_angle) && !angle_ok && distance_ok) {
     cmd_vitesse_G = 0;
     cmd_vitesse_D = 0;
-    delay(100);
     distance = 0;
-    cmd_distance = 500;
+    cmd_distance = 10000;
     cmd_vitesse_G = 1000;
     cmd_vitesse_D = 1000;
     angle_ok = true;
@@ -84,15 +89,28 @@ void Update_callback() {
   last_tick_gauche = tick_now_gauche;
   last_tick_droit = tick_now_droit;
   /********************************/
-  interval_sensor++;
-  Update_IT = false;
+  // Serial.print("diff: ");
+  // Serial.println(vitesse_D);
+  // Serial.println(vitesse_G);
+  // Serial.print("angle:");
+  // Serial.println(angle);
+  // Serial.print("distance");
+  // Serial.println(distance);
+  Update_IT = true;
 }
+/*************************************/
+/*************************************/
+/*************************************/
+
 
 void Stop_match_callback() {
-  MyTim->detachInterrupt();
-  Output_PID_vitesse_D = 0;
-  Output_PID_vitesse_G = 0;
+  cmd_vitesse_G = 0;
+  cmd_vitesse_D = 0;
   Serial.println("Stop du temps");
+  analogWrite(PWM_G, 0);
+  analogWrite(PWM_D, 0);
+  while (1)
+    ;
 }
 
 void handleEncoderDroit() {
